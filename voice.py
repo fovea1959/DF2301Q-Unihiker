@@ -10,9 +10,6 @@ import time
 #https://github.com/DFRobot/DFRobot_DF2301Q/tree/master/python/unihiker
 from DFRobot_DF2301Q import *
 
-gui = GUI()
-gui.fill_rect(x=0, y=0, w=240, h=320, color='#000000')
-
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, reason_code, properties=None):
     print(f"Connected with result code {reason_code}")
@@ -24,31 +21,38 @@ def on_connect(client, userdata, flags, reason_code, properties=None):
 def on_message(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload))
 
-Board().begin()
-led = Pin(Pin.P24, Pin.OUT)  # Pin initialization to level output
-DF2301Q = DFRobot_DF2301Q_I2C()  # Initialize
-DF2301Q.set_volume(5)  # Volume
-DF2301Q.set_mute_mode(0)  # Set mute
-DF2301Q.set_wake_time(20)  # Set wake time
-print(DF2301Q.get_wake_time())
-DF2301Q.play_by_CMDID(2)
-print("----------------------")
+def main():
+    gui = GUI()
+    gui.fill_rect(x=0, y=0, w=240, h=320, color='#000000')
 
-mqttc = mqtt.Client()
-mqttc.on_connect = on_connect
-mqttc.on_message = on_message
 
-mqttc.connect("mqtt.localnet", 1883, 60)
+    Board().begin()
+    led = Pin(Pin.P24, Pin.OUT)  # Pin initialization to level output
+    DF2301Q = DFRobot_DF2301Q_I2C()  # Initialize
+    DF2301Q.set_volume(5)  # Volume
+    DF2301Q.set_mute_mode(0)  # Set mute
+    DF2301Q.set_wake_time(20)  # Set wake time
+    print(DF2301Q.get_wake_time())
+    DF2301Q.play_by_CMDID(2)
+    print("----------------------")
 
-mqttc.loop_start()
+    mqttc = mqtt.Client()
+    mqttc.on_connect = on_connect
+    mqttc.on_message = on_message
 
-while True:
-    cmdid = DF2301Q.get_CMDID()
-    if (not cmdid==0):
-        gui.fill_rect(x=0, y=0, w=240, h=320, color='#000000')
-        gui.draw_text(x=120, y=160, origin='center', text=str(cmdid), color='#00ffff')
-        print(cmdid)
-        mqttc.publish("unihiker/speech_command", str(cmdid))
-    else:
-        time.sleep(0.05)
+    mqttc.connect("mqtt.localnet", 1883, 60)
 
+    mqttc.loop_start()
+
+    while True:
+        cmdid = DF2301Q.get_CMDID()
+        if (not cmdid==0):
+            gui.fill_rect(x=0, y=0, w=240, h=320, color='#000000')
+            gui.draw_text(x=120, y=160, origin='center', text=str(cmdid), color='#00ffff')
+            print(cmdid)
+            mqttc.publish("unihiker/speech_command", str(cmdid))
+        else:
+            time.sleep(0.05)
+
+if __name__ == '__main__':
+    main()

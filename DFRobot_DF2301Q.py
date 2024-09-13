@@ -21,17 +21,7 @@ from pinpong.board import I2C
 import serial
 import numpy as np
 
-import logging
 from ctypes import *
-
-
-logger = logging.getLogger()
-# logger.setLevel(logging.INFO)   # Display all print information
-logger.setLevel(logging.FATAL)   # If you don’t want to display too many prints, only print errors, please use this option
-ph = logging.StreamHandler()
-formatter = logging.Formatter("%(asctime)s - [%(filename)s %(funcName)s]:%(lineno)d - %(levelname)s: %(message)s")
-ph.setFormatter(formatter) 
-logger.addHandler(ph)
 
 
 ## i2c address
